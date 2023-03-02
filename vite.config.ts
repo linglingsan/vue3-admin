@@ -2,6 +2,10 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 import path from "path";
+import {
+  createStyleImportPlugin,
+  AndDesignVueResolve,
+} from "vite-plugin-style-import";
 
 // https://vitejs.dev/config/
 export default ({ mode }) =>
@@ -13,5 +17,27 @@ export default ({ mode }) =>
         "@": path.resolve(__dirname, "/src"),
       },
     },
-    plugins: [vue(), vueJsx()],
+    css: {
+      preprocessorOptions: {
+        less: {
+          javascriptEnabled: true,
+        },
+      },
+    },
+    plugins: [
+      vue(),
+      vueJsx(),
+      createStyleImportPlugin({
+        resolves: [AndDesignVueResolve()],
+        libs: [
+          {
+            libraryName: "ant-design-vue",
+            esModule: true,
+            resolveStyle: (name) => {
+              return `ant-design-vue/es/${name}/style/index`;
+            },
+          },
+        ],
+      }),
+    ],
   });

@@ -2,7 +2,6 @@ import { ref, defineComponent } from "vue";
 import classes from "./index.module.less";
 import { Button } from "ant-design-vue";
 
-
 export default defineComponent({
   name: "HelloWorld",
   props: { msg: { type: String, required: true } },
