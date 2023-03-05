@@ -6,6 +6,9 @@ import {
   createStyleImportPlugin,
   AndDesignVueResolve,
 } from "vite-plugin-style-import";
+import { isProd, isDev } from "./env"
+
+console.log('isProd, isDev, isServer', isProd, isDev)
 
 // https://vitejs.dev/config/
 export default ({ mode }) =>
