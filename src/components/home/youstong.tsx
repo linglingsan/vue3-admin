@@ -9,6 +9,7 @@ import {
 import { Card, Table, Image, Input } from "ant-design-vue";
 import * as goodsApi from "@/http/goods";
 import { getShopColumns } from "./columns";
+import { YouSTongList, YouSTongSKUList } from "@/http/types";
 
 type Key = string | number;
 
@@ -20,11 +21,11 @@ export default defineComponent({
   ) {
     const state = reactive<{
       selectedRowKeys: Key[];
-      dataSource: Record<string, any>;
+      dataSource: YouSTongList;
       loading: boolean;
     }>({
       selectedRowKeys: [],
-      dataSource: {},
+      dataSource: { SKUList: [], TotalCount: 0 },
       loading: false,
     });
 
@@ -36,11 +37,11 @@ export default defineComponent({
 
     function getList(params = query.value) {
       state.loading = true;
+
       goodsApi
         .getShopList(params)
         .then((res) => {
-          const { data } = JSON.parse(res as any);
-          state.dataSource = data;
+          state.dataSource = JSON.parse(res as any).data as YouSTongList;
         })
         .finally(() => {
           state.loading = false;
@@ -48,10 +49,8 @@ export default defineComponent({
     }
 
     const hasSelected = computed(() => state.selectedRowKeys.length > 0);
-    const onSelectChange = (selectedRowKeys: Key[], rows: any[]) => {
-      console.log("selectedRowKeys changed: ", selectedRowKeys);
+    const onSelectChange = (selectedRowKeys: Key[], rows: YouSTongSKUList[]) => {
       state.selectedRowKeys = selectedRowKeys;
-      // getValue("t1", selectedRowKeys as string[])
       emit("getValue", "t1", rows);
     };
 

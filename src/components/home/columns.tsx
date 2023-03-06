@@ -1,5 +1,5 @@
 import { Image } from "ant-design-vue";
-import { toRaw } from "vue";
+import { WMPageList, YouSTongSKUList } from "@/http/types";
 
 export function getShopColumns() {
   return [
@@ -13,7 +13,7 @@ export function getShopColumns() {
         record,
       }: {
         text: string;
-        record: Record<string, string>;
+        record: YouSTongSKUList;
       }) => {
         return (
           <div class="flex flex-col items-center">
@@ -59,7 +59,7 @@ export function getGoodsColumns() {
         record,
       }: {
         text: string;
-        record: Record<string, string>;
+        record: WMPageList;
       }) => {
         return (
           <div class="flex flex-col items-center">

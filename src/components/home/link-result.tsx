@@ -36,14 +36,15 @@ export default defineComponent({
     }
 
     function subscribeOrCancel(flag: boolean) {
-      goodsApi.subscribeOrCancel(flag, state.selectedRowKeys).then((res) => {
-        console.log(res);
-      });
+      goodsApi
+        .subscribeOrCancel(flag, state.selectedRowKeys.toString().split(","))
+        .then((res) => {
+          console.log(res);
+        });
     }
 
     const hasSelected = computed(() => state.selectedRowKeys.length > 0);
     const onSelectChange = (selectedRowKeys: Key[]) => {
-      console.log("selectedRowKeys changed: ", selectedRowKeys);
       state.selectedRowKeys = selectedRowKeys;
     };
 

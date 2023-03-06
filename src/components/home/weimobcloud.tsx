@@ -9,20 +9,24 @@ import {
 } from "vue";
 import { getChildColumns, getGoodsColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
+import { WMGoodsDetail, WMList } from "@/http/types";
 
 type Key = string | number;
 
 export default defineComponent({
   name: "WeiMobCloud",
-  setup(props: { onGetValue: (key: string, value: string[]) => void }, {emit}) {
+  setup(
+    props: { onGetValue: (key: string, value: string[]) => void },
+    { emit }
+  ) {
     const state = reactive<{
       selectedRowKeys: Key[];
       loading: boolean;
-      dataSource: Record<string, any>;
+      dataSource: WMList;
     }>({
       selectedRowKeys: [],
       loading: false,
-      dataSource: {},
+      dataSource: { pageList: [], totalCount: 0, pageSize: 20, pageNum: 1 },
     });
 
     const query = ref({
@@ -39,7 +43,7 @@ export default defineComponent({
       goodsApi
         .getGoodsList(params)
         .then((res) => {
-          state.dataSource = JSON.parse(res as any).data;
+          state.dataSource = JSON.parse(res as any).data as WMList;
         })
         .finally(() => {
           state.loading = false;
@@ -48,10 +52,9 @@ export default defineComponent({
 
     const hasSelected = computed(() => state.selectedRowKeys.length > 0);
 
-    const onSelectChange = (selectedRowKeys: Key[],rows: any[]) => {
+    const onSelectChange = (selectedRowKeys: Key[], rows: WMGoodsDetail[]) => {
       state.selectedRowKeys = selectedRowKeys;
-      // props.getValue("t1", selectedRowKeys as string[]);
-      emit("getValue", "t2", rows)
+      emit("getValue", "t2", rows);
     };
 
     const onExpand = async (
@@ -62,7 +65,7 @@ export default defineComponent({
       const { goodsId } = toRaw(record);
       const res = await goodsApi.getGoodsDetailInfo(Number(goodsId));
       const { data } = JSON.parse(res as any);
-      record.skuList = data.skuList;
+      record.detailInfo = data;
     };
 
     return () => (
@@ -105,7 +108,7 @@ export default defineComponent({
                     size="small"
                     rowKey="skuId"
                     columns={getChildColumns()}
-                    dataSource={record?.skuList ?? []}
+                    dataSource={record?.detailInfo?.skuList ?? []}
                     pagination={false}
                     rowSelection={{
                       selectedRowKeys: state.selectedRowKeys,
