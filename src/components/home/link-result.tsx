@@ -1,4 +1,4 @@
-import { Button, Card, Input, Table } from "ant-design-vue";
+import { Button, Card, Input, Table, message } from "ant-design-vue";
 import { computed, defineComponent, reactive, onMounted, ref } from "vue";
 import { linkResultColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
@@ -39,11 +39,24 @@ export default defineComponent({
       goodsApi
         .subscribeOrCancel(flag, state.selectedRowKeys.toString().split(","))
         .then((res) => {
-          console.log(res);
+          if (res.status === 200) {
+            message.success(`${flag ? "订阅" : "取消订阅"}成功`);
+            state.selectedRowKeys = [];
+          } 
         });
     }
 
-    const hasSelected = computed(() => state.selectedRowKeys.length > 0);
+    const handleDelete = (id: string) => {
+      goodsApi.deleteLinkId(id).then((res) => {
+        if (res.status === 200) {
+          message.success("删除成功");
+          query.value.page = 1;
+          query.value.keyword = "";
+          getList();
+        }
+      });
+    };
+
     const onSelectChange = (selectedRowKeys: Key[]) => {
       state.selectedRowKeys = selectedRowKeys;
     };
@@ -80,7 +93,7 @@ export default defineComponent({
               rowKey="ystSkuNo"
               size="small"
               dataSource={state.dataSource.list}
-              columns={linkResultColumns()}
+              columns={linkResultColumns({ handleDelete })}
               scroll={{ y: "calc(100vh - 336px)" }}
               rowSelection={{
                 selectedRowKeys: state.selectedRowKeys,

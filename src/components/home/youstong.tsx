@@ -15,10 +15,8 @@ type Key = string | number;
 
 export default defineComponent({
   name: "YouSTong",
-  setup(
-    props: { onGetValue: (key: string, value: string[]) => void },
-    { emit }
-  ) {
+  emits: ["getValue"],
+  setup(props, { emit }) {
     const state = reactive<{
       selectedRowKeys: Key[];
       dataSource: YouSTongList;
@@ -48,10 +46,13 @@ export default defineComponent({
         });
     }
 
-    const hasSelected = computed(() => state.selectedRowKeys.length > 0);
-    const onSelectChange = (selectedRowKeys: Key[], rows: YouSTongSKUList[]) => {
+    const onSelectChange = (
+      selectedRowKeys: Key[],
+      rows: YouSTongSKUList[]
+    ) => {
       state.selectedRowKeys = selectedRowKeys;
-      emit("getValue", "t1", rows);
+   
+      emit("getValue", { youSTong: rows });
     };
 
     return () => (

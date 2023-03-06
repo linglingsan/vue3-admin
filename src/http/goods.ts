@@ -38,3 +38,7 @@ export function subscribeOrCancel(flag: boolean, list: string[]) {
     list
   );
 }
+
+export function deleteLinkId(id: string) {
+  return axios.get(`/market/rest/GoodsMapping/delete?${qs.stringify({id})}`) 
+}

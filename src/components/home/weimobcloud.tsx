@@ -6,19 +6,19 @@ import {
   reactive,
   ref,
   toRaw,
+  toRef,
 } from "vue";
 import { getChildColumns, getGoodsColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
-import { WMGoodsDetail, WMList } from "@/http/types";
+import { WMGoodsDetail, WMList, WMSKUList } from "@/http/types";
+import { WMPageList } from "../../http/types";
 
 type Key = string | number;
 
 export default defineComponent({
   name: "WeiMobCloud",
-  setup(
-    props: { onGetValue: (key: string, value: string[]) => void },
-    { emit }
-  ) {
+  emits: ["getValue"],
+  setup(props, { emit }) {
     const state = reactive<{
       selectedRowKeys: Key[];
       loading: boolean;
@@ -50,11 +50,16 @@ export default defineComponent({
         });
     }
 
-    const hasSelected = computed(() => state.selectedRowKeys.length > 0);
-
-    const onSelectChange = (selectedRowKeys: Key[], rows: WMGoodsDetail[]) => {
+    const onSelectChange = (goodsId: string, selectedRowKeys: Key[]) => {
       state.selectedRowKeys = selectedRowKeys;
-      emit("getValue", "t2", rows);
+
+      const row = JSON.parse(JSON.stringify(state.dataSource.pageList)).find(
+        (l: WMPageList) => l.goodsId === Number(goodsId)
+      );
+
+      emit("getValue", {
+        wmGoods: [{ ...row.detailInfo, selectedKey: selectedRowKeys[0] }],
+      });
     };
 
     const onExpand = async (
@@ -112,7 +117,8 @@ export default defineComponent({
                     pagination={false}
                     rowSelection={{
                       selectedRowKeys: state.selectedRowKeys,
-                      onChange: onSelectChange,
+                      onChange: (selectedRowKeys: Key[]) =>
+                        onSelectChange(record.goodsId, selectedRowKeys),
                     }}
                   />
                 );

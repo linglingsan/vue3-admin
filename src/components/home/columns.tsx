@@ -1,5 +1,6 @@
-import { Image } from "ant-design-vue";
+import { Button, Image } from "ant-design-vue";
 import { WMPageList, YouSTongSKUList } from "@/http/types";
+import { LinkRow } from "@/http/types";
 
 export function getShopColumns() {
   return [
@@ -36,6 +37,7 @@ export function getShopColumns() {
     {
       title: "单价",
       width: 80,
+      // TODO multi 
       dataIndex: ["CurrentPrices", 0, "UnitPrice"],
     },
   ];
@@ -53,7 +55,6 @@ export function getGoodsColumns() {
       dataIndex: "title",
       ellipsis: true,
       width: 160,
-      //
       customRender: ({
         text,
         record,
@@ -85,7 +86,11 @@ export function getChildColumns() {
   ];
 }
 
-export function linkResultColumns() {
+export function linkResultColumns({
+  handleDelete,
+}: {
+  handleDelete: (id: string) => void;
+}) {
   return [
     {
       title: "优时通SKU",
@@ -100,6 +105,13 @@ export function linkResultColumns() {
       dataIndex: "ystImageUrl",
       customRender: ({ text }: { text: string }) => {
         return <Image width={80} src={text} />;
+      },
+    },
+    {
+      title: "是否订阅",
+      dataIndex: "subscribeStatus",
+      customRender: ({ text }: { text: string }) => {
+        return +text ? "是" : "否";
       },
     },
     {
@@ -119,7 +131,23 @@ export function linkResultColumns() {
     },
     {
       title: "仓库名称",
-      dataIndex: "defaultStock"
-    }
+      dataIndex: "defaultStock",
+    },
+    {
+      title: "操作",
+      key: "operate",
+      customRender: ({ record }: { record: LinkRow }) => {
+        return (
+          <div>
+            <Button
+              type="link"
+              onClick={() => handleDelete(record.id.toString())}
+            >
+              删除
+            </Button>
+          </div>
+        );
+      },
+    },
   ];
 }

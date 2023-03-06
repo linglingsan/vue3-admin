@@ -1,35 +1,55 @@
 import { defineComponent, onMounted, ref, toRaw } from "vue";
-import { Button, Layout } from "ant-design-vue";
+import { Button, Layout, message } from "ant-design-vue";
 import { YouSTong, WeiMobCloud, LinkResult } from "@/components/home";
-import { getShopList } from "@/data/getShopList";
 import * as goodsApi from "@/http/goods";
 import { LinkParams, WMGoodsDetail, YouSTongSKUList } from "@/http/types";
+import { YouSTongList } from "../http/types";
 
 const { Header, Content, Footer } = Layout;
 export default defineComponent({
   name: "Home",
   setup(props) {
-    const list = ref<{ t1: YouSTongSKUList[]; t2: WMGoodsDetail[] }>({
-      t1: [],
-      t2: [],
-    });
-
-    function getChildValue(key: "t1" | "t2", value: any[]) {
-      if (key === "t1") {
-        list.value.t1 = value as YouSTongSKUList[];
+    const list = ref<{ youSTong: YouSTongSKUList[]; wmGoods: WMGoodsDetail[] }>(
+      {
+        youSTong: [],
+        wmGoods: [],
       }
-      if (key === "t2") {
-        list.value.t2 = value as WMGoodsDetail[];
+    );
+
+    function getChildValue(data: {
+      youSTong?: YouSTongSKUList[];
+      wmGoods?: WMGoodsDetail[];
+    }) {
+      if (data.youSTong) {
+        list.value.youSTong = data.youSTong;
+      }
+      if (data.wmGoods) {
+        list.value.wmGoods = data.wmGoods;
       }
     }
 
     function handleLink() {
       const data = toRaw(list.value);
-      if (data.t1.length > 1 || data.t2.length > 1) {
+
+      if (data.youSTong.length !== 1) {
+        message.warn("请选择一个优时通商品");
         return;
       }
-      const { SKUNo, SKUName, ImageUrl, DefaultStock } = data.t1[0];
-      const { goodsId, skuId, title, defaultImageUrl } = data.t2[0];
+
+      if (data.wmGoods.length !== 1) {
+        message.warn("请选择一个微盟云商品");
+        return;
+      }
+
+      const { SKUNo, SKUName, ImageUrl, DefaultStock } = JSON.parse(
+        JSON.stringify(data.youSTong[0])
+      );
+      const {
+        goodsId,
+        selectedKey: skuId,
+        title,
+        defaultImageUrl,
+      } = JSON.parse(JSON.stringify(data.wmGoods[0]));
 
       const parmas: LinkParams = {
         ystSkuNo: SKUNo.toString(),
@@ -43,7 +63,12 @@ export default defineComponent({
       };
 
       goodsApi.save(parmas).then((res) => {
-        console.log(res);
+        if (res.status === 200) {
+          list.value.wmGoods = [];
+          list.value.youSTong = [];
+          message.success("绑定成功");
+          // TODO clear selectedKey
+        }
       });
     }
     return () => (
