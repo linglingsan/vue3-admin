@@ -1,24 +1,17 @@
 import { Card, Input, Table } from "ant-design-vue";
-import {
-  computed,
-  defineComponent,
-  onMounted,
-  reactive,
-  ref,
-  toRaw,
-  toRef,
-} from "vue";
+import { defineComponent, onMounted, reactive, ref, toRaw } from "vue";
 import { getChildColumns, getGoodsColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
-import { WMGoodsDetail, WMList, WMSKUList } from "@/http/types";
-import { WMPageList } from "../../http/types";
+import { WMGoodsDetail, WMList } from "@/http/types";
 
 type Key = string | number;
 
 export default defineComponent({
   name: "WeiMobCloud",
-  emits: ["getValue"],
-  setup(props, { emit }) {
+  setup(props: {
+    selectKey: Key[];
+    onWMSelectChange: (key: Key[], rows: WMGoodsDetail[]) => void;
+  }) {
     const state = reactive<{
       selectedRowKeys: Key[];
       loading: boolean;
@@ -49,18 +42,6 @@ export default defineComponent({
           state.loading = false;
         });
     }
-
-    const onSelectChange = (goodsId: string, selectedRowKeys: Key[]) => {
-      state.selectedRowKeys = selectedRowKeys;
-
-      const row = JSON.parse(JSON.stringify(state.dataSource.pageList)).find(
-        (l: WMPageList) => l.goodsId === Number(goodsId)
-      );
-
-      emit("getValue", {
-        wmGoods: [{ ...row.detailInfo, selectedKey: selectedRowKeys[0] }],
-      });
-    };
 
     const onExpand = async (
       expanded: boolean,
@@ -116,9 +97,8 @@ export default defineComponent({
                     dataSource={record?.detailInfo?.skuList ?? []}
                     pagination={false}
                     rowSelection={{
-                      selectedRowKeys: state.selectedRowKeys,
-                      onChange: (selectedRowKeys: Key[]) =>
-                        onSelectChange(record.goodsId, selectedRowKeys),
+                      selectedRowKeys: props.selectKey,
+                      onChange: props.onWMSelectChange,
                     }}
                   />
                 );

@@ -1,12 +1,5 @@
-import {
-  computed,
-  defineComponent,
-  onMounted,
-  reactive,
-  ref,
-  toRaw,
-} from "vue";
-import { Card, Table, Image, Input } from "ant-design-vue";
+import { defineComponent, onMounted, reactive, ref } from "vue";
+import { Card, Table, Input } from "ant-design-vue";
 import * as goodsApi from "@/http/goods";
 import { getShopColumns } from "./columns";
 import { YouSTongList, YouSTongSKUList } from "@/http/types";
@@ -15,8 +8,11 @@ type Key = string | number;
 
 export default defineComponent({
   name: "YouSTong",
-  emits: ["getValue"],
-  setup(props, { emit }) {
+
+  setup(props: {
+    selectKey: Key[];
+    onYSTSelectChange: (key: Key[], rows: YouSTongSKUList[]) => void;
+  }) {
     const state = reactive<{
       selectedRowKeys: Key[];
       dataSource: YouSTongList;
@@ -46,15 +42,6 @@ export default defineComponent({
         });
     }
 
-    const onSelectChange = (
-      selectedRowKeys: Key[],
-      rows: YouSTongSKUList[]
-    ) => {
-      state.selectedRowKeys = selectedRowKeys;
-   
-      emit("getValue", { youSTong: rows });
-    };
-
     return () => (
       <Card class="w-1/2" title="优时通在售商品">
         <div>
@@ -76,8 +63,8 @@ export default defineComponent({
             columns={getShopColumns()}
             scroll={{ y: "calc(100vh - 336px)" }}
             rowSelection={{
-              selectedRowKeys: state.selectedRowKeys,
-              onChange: onSelectChange,
+              selectedRowKeys: props.selectKey,
+              onChange: props.onYSTSelectChange,
             }}
             pagination={{
               current: query.value.pageIndex + 1,

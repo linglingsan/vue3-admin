@@ -1,5 +1,5 @@
 import { Button, Card, Input, Table, message } from "ant-design-vue";
-import { computed, defineComponent, reactive, onMounted, ref } from "vue";
+import { defineComponent, reactive, onMounted, ref } from "vue";
 import { linkResultColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
 
@@ -42,7 +42,7 @@ export default defineComponent({
           if (res.status === 200) {
             message.success(`${flag ? "订阅" : "取消订阅"}成功`);
             state.selectedRowKeys = [];
-          } 
+          }
         });
     }
 

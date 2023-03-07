@@ -1,4 +1,4 @@
-import { Button, Image } from "ant-design-vue";
+import { Button, Image, Tooltip } from "ant-design-vue";
 import { WMPageList, YouSTongSKUList } from "@/http/types";
 import { LinkRow } from "@/http/types";
 
@@ -19,7 +19,9 @@ export function getShopColumns() {
         return (
           <div class="flex flex-col items-center">
             <Image width={80} src={record.ImageUrl} />
-            <div class="w-full truncate">{text}</div>
+            <Tooltip title={text}>
+              <div class="w-full truncate">{text}</div>
+            </Tooltip>
           </div>
         );
       },
@@ -37,8 +39,18 @@ export function getShopColumns() {
     {
       title: "单价",
       width: 80,
-      // TODO multi 
-      dataIndex: ["CurrentPrices", 0, "UnitPrice"],
+      dataIndex: "CurrentPrices",
+      customRender: (text: any) => {
+        return (
+          <div class="flex">
+            {text.map((item: { QtyPerOrder: number; UnitPrice: number }) => (
+              <div key={item.QtyPerOrder}>
+                {item.UnitPrice}元/{item.QtyPerOrder}件
+              </div>
+            ))}
+          </div>
+        );
+      },
     },
   ];
 }
@@ -65,7 +77,9 @@ export function getGoodsColumns() {
         return (
           <div class="flex flex-col items-center">
             <Image width={80} src={record.defaultImageUrl} />
-            <div class="w-full truncate">{text}</div>
+            <Tooltip title={text}>
+              <div class="w-full truncate">{text}</div>
+            </Tooltip>
           </div>
         );
       },

@@ -1,11 +1,13 @@
-import { defineComponent, onMounted, ref, toRaw } from "vue";
+import { defineComponent, reactive, ref, toRaw } from "vue";
 import { Button, Layout, message } from "ant-design-vue";
 import { YouSTong, WeiMobCloud, LinkResult } from "@/components/home";
 import * as goodsApi from "@/http/goods";
 import { LinkParams, WMGoodsDetail, YouSTongSKUList } from "@/http/types";
-import { YouSTongList } from "../http/types";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
+
+type Key = string | number;
+
 export default defineComponent({
   name: "Home",
   setup(props) {
@@ -16,16 +18,27 @@ export default defineComponent({
       }
     );
 
-    function getChildValue(data: {
-      youSTong?: YouSTongSKUList[];
-      wmGoods?: WMGoodsDetail[];
-    }) {
-      if (data.youSTong) {
-        list.value.youSTong = data.youSTong;
-      }
-      if (data.wmGoods) {
-        list.value.wmGoods = data.wmGoods;
-      }
+    const youSTong = reactive<{
+      selectKey: Key[];
+      selectRow: YouSTongSKUList[];
+    }>({ selectKey: [], selectRow: [] });
+
+    const wmGoods = reactive<{
+      selectKey: Key[];
+      selectRow: WMGoodsDetail[];
+    }>({ selectKey: [], selectRow: [] });
+
+    function onYSTSelectChange(
+      selectedRowKeys: Key[],
+      rows: YouSTongSKUList[]
+    ) {
+      youSTong.selectKey = selectedRowKeys;
+      youSTong.selectRow = rows;
+    }
+
+    function onWMSelectChange(selectedRowKeys: Key[], rows: WMGoodsDetail[]) {
+      wmGoods.selectKey = selectedRowKeys;
+      wmGoods.selectRow = rows;
     }
 
     function handleLink() {
@@ -67,7 +80,10 @@ export default defineComponent({
           list.value.wmGoods = [];
           list.value.youSTong = [];
           message.success("绑定成功");
-          // TODO clear selectedKey
+          youSTong.selectKey = [];
+          youSTong.selectRow = [];
+          wmGoods.selectKey = [];
+          wmGoods.selectRow = [];
         }
       });
     }
@@ -80,8 +96,14 @@ export default defineComponent({
         </Header>
         <Content class="flex flex-col mx-[50px] mt-[24px]">
           <div class="flex justify-between mb-[20px]">
-            <YouSTong onGetValue={getChildValue} />
-            <WeiMobCloud onGetValue={getChildValue} />
+            <YouSTong
+              selectKey={youSTong.selectKey}
+              onYSTSelectChange={onYSTSelectChange}
+            />
+            <WeiMobCloud
+              selectKey={wmGoods.selectKey}
+              onWMSelectChange={onWMSelectChange}
+            />
           </div>
           <div class="flex flex-col">
             <LinkResult />
