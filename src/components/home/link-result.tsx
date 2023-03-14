@@ -1,5 +1,6 @@
-import { Button, Card, Input, Table, message } from "ant-design-vue";
 import { defineComponent, reactive, onMounted, ref } from "vue";
+import { Button, Card, Input, Table, Tooltip, message } from "ant-design-vue";
+import { SearchOutlined, ReloadOutlined } from "@ant-design/icons-vue";
 import { linkResultColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
 
@@ -7,7 +8,7 @@ type Key = string | number;
 
 export default defineComponent({
   name: "LinkResult",
-  setup(props) {
+  setup(props, { expose }) {
     const state = reactive<{
       selectedRowKeys: Key[];
       dataSource: Record<string, any>;
@@ -22,6 +23,8 @@ export default defineComponent({
     onMounted(() => {
       getList();
     });
+
+    expose({ getList });
 
     function getList(params = query.value) {
       state.loading = true;
@@ -39,9 +42,18 @@ export default defineComponent({
       goodsApi
         .subscribeOrCancel(flag, state.selectedRowKeys.toString().split(","))
         .then((res) => {
-          if (res.status === 200) {
-            message.success(`${flag ? "订阅" : "取消订阅"}成功`);
-            state.selectedRowKeys = [];
+          try {
+            const { data } = JSON.parse(res as unknown as string);
+
+            if (data.Success) {
+              message.success(`${flag ? "订阅" : "取消订阅"}成功`);
+              state.selectedRowKeys = [];
+              getList();
+            } else {
+              message.warn(data.Message);
+            }
+          } catch (error) {
+            console.log(error);
           }
         });
     }
@@ -53,6 +65,8 @@ export default defineComponent({
           query.value.page = 1;
           query.value.keyword = "";
           getList();
+        } else {
+          message.warn((res as unknown as Record<string, string>).message);
         }
       });
     };
@@ -79,15 +93,29 @@ export default defineComponent({
           }
         >
           <div>
-            <div class="mb-[10px]">
+            <div class="mb-[10px] flex gap-[10px]">
               <Input
                 placeholder="请输入关键词"
+                value={query.value.keyword ?? ""}
                 onChange={(e) => (query.value.keyword = e.target.value ?? "")}
                 onPressEnter={() => {
                   query.value.page = 1;
                   getList();
                 }}
               />
+              <Tooltip title="查询">
+                <Button icon={<SearchOutlined />} onClick={() => getList()} />
+              </Tooltip>
+              <Tooltip title="查询">
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() => {
+                    query.value.page = 1;
+                    query.value.keyword = "";
+                    getList();
+                  }}
+                />
+              </Tooltip>
             </div>
             <Table
               rowKey="ystSkuNo"

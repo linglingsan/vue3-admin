@@ -4,7 +4,7 @@ import JSONBig from "json-bigint";
 
 const instance = axios.create({
   // baseURL: (process.env.API_BASE || '') + '/api',
-  baseURL: "http://59hap4.natappfree.cc/",
+  baseURL: "http://106.14.150.136:8885/",
   timeout: 30 * 1000,
   transformResponse: [
     function (data) {

@@ -1,4 +1,4 @@
-import { defineComponent, reactive, ref, toRaw } from "vue";
+import { defineComponent, reactive, ref, getCurrentInstance } from "vue";
 import { Button, Layout, message } from "ant-design-vue";
 import { YouSTong, WeiMobCloud, LinkResult } from "@/components/home";
 import * as goodsApi from "@/http/goods";
@@ -8,61 +8,60 @@ const { Header, Content } = Layout;
 
 type Key = string | number;
 
+type YousTongValue = {
+  selectedKeys: Key[];
+  selectedRows: YouSTongSKUList[];
+};
+
+type wmGoodsValue = {
+  selectedKeys: Key[];
+  selectedRows: WMGoodsDetail[];
+};
+
 export default defineComponent({
   name: "Home",
   setup(props) {
-    const list = ref<{ youSTong: YouSTongSKUList[]; wmGoods: WMGoodsDetail[] }>(
-      {
-        youSTong: [],
-        wmGoods: [],
-      }
-    );
+    const youSTong = ref<{
+      getSeleteValue: () => YousTongValue;
+      handleChange: () => void;
+    } | null>(null);
+    const wmGoods = ref<{
+      getSeleteValue: () => wmGoodsValue;
+      handleChange: () => void;
+    } | null>(null);
 
-    const youSTong = reactive<{
-      selectKey: Key[];
-      selectRow: YouSTongSKUList[];
-    }>({ selectKey: [], selectRow: [] });
-
-    const wmGoods = reactive<{
-      selectKey: Key[];
-      selectRow: WMGoodsDetail[];
-    }>({ selectKey: [], selectRow: [] });
-
-    function onYSTSelectChange(
-      selectedRowKeys: Key[],
-      rows: YouSTongSKUList[]
-    ) {
-      youSTong.selectKey = selectedRowKeys;
-      youSTong.selectRow = rows;
-    }
-
-    function onWMSelectChange(selectedRowKeys: Key[], rows: WMGoodsDetail[]) {
-      wmGoods.selectKey = selectedRowKeys;
-      wmGoods.selectRow = rows;
-    }
+    const link = ref<{ getList: () => void } | null>(null);
 
     function handleLink() {
-      const data = toRaw(list.value);
+      // link.value?.getList();
+      // return
 
-      if (data.youSTong.length !== 1) {
+      if (!youSTong.value || !youSTong.value.getSeleteValue) return;
+      if (!wmGoods.value || !wmGoods.value.getSeleteValue) return;
+
+      const youSTongValue = youSTong.value?.getSeleteValue();
+      const wmGoodsValue = wmGoods?.value?.getSeleteValue();
+
+      if (youSTongValue.selectedKeys.length !== 1) {
         message.warn("请选择一个优时通商品");
         return;
       }
 
-      if (data.wmGoods.length !== 1) {
+      if (wmGoodsValue.selectedKeys.length !== 1) {
         message.warn("请选择一个微盟云商品");
         return;
       }
 
       const { SKUNo, SKUName, ImageUrl, DefaultStock } = JSON.parse(
-        JSON.stringify(data.youSTong[0])
+        JSON.stringify(youSTongValue.selectedRows[0])
       );
+
       const {
         goodsId,
         selectedKey: skuId,
         title,
         defaultImageUrl,
-      } = JSON.parse(JSON.stringify(data.wmGoods[0]));
+      } = JSON.parse(JSON.stringify(wmGoodsValue.selectedRows[0]));
 
       const parmas: LinkParams = {
         ystSkuNo: SKUNo.toString(),
@@ -77,13 +76,12 @@ export default defineComponent({
 
       goodsApi.save(parmas).then((res) => {
         if (res.status === 200) {
-          list.value.wmGoods = [];
-          list.value.youSTong = [];
           message.success("绑定成功");
-          youSTong.selectKey = [];
-          youSTong.selectRow = [];
-          wmGoods.selectKey = [];
-          wmGoods.selectRow = [];
+          youSTong.value?.handleChange();
+          wmGoods.value?.handleChange();
+          link.value?.getList();
+        } else {
+          message.warning((res as unknown as Record<string, string>).message);
         }
       });
     }
@@ -96,17 +94,11 @@ export default defineComponent({
         </Header>
         <Content class="flex flex-col mx-[50px] mt-[24px]">
           <div class="flex justify-between mb-[20px]">
-            <YouSTong
-              selectKey={youSTong.selectKey}
-              onYSTSelectChange={onYSTSelectChange}
-            />
-            <WeiMobCloud
-              selectKey={wmGoods.selectKey}
-              onWMSelectChange={onWMSelectChange}
-            />
+            <YouSTong ref={youSTong} />
+            <WeiMobCloud ref={wmGoods} />
           </div>
           <div class="flex flex-col">
-            <LinkResult />
+            <LinkResult ref={link} />
           </div>
         </Content>
       </Layout>

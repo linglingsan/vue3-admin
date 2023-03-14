@@ -1,24 +1,25 @@
 import { defineComponent, onMounted, reactive, ref } from "vue";
-import { Card, Table, Input } from "ant-design-vue";
+import { Card, Table, Input, Button, Tooltip } from "ant-design-vue";
+import { SearchOutlined, ReloadOutlined } from "@ant-design/icons-vue";
 import * as goodsApi from "@/http/goods";
 import { getShopColumns } from "./columns";
 import { YouSTongList, YouSTongSKUList } from "@/http/types";
+import getShopList from "@/mock/getShopList.json";
 
 type Key = string | number;
 
 export default defineComponent({
   name: "YouSTong",
 
-  setup(props: {
-    selectKey: Key[];
-    onYSTSelectChange: (key: Key[], rows: YouSTongSKUList[]) => void;
-  }) {
+  setup(props, { expose }) {
     const state = reactive<{
-      selectedRowKeys: Key[];
+      selectedKeys: Key[];
+      selectedRows: YouSTongSKUList[];
       dataSource: YouSTongList;
       loading: boolean;
     }>({
-      selectedRowKeys: [],
+      selectedKeys: [],
+      selectedRows: [],
       dataSource: { SKUList: [], TotalCount: 0 },
       loading: false,
     });
@@ -27,6 +28,11 @@ export default defineComponent({
 
     onMounted(() => {
       getList();
+    });
+
+    expose({
+      handleChange,
+      getSeleteValue,
     });
 
     function getList(params = query.value) {
@@ -42,18 +48,44 @@ export default defineComponent({
         });
     }
 
+    function handleChange(key: Key[], rows: YouSTongSKUList[]) {
+      state.selectedKeys = key ?? [];
+      state.selectedRows = rows ?? [];
+    }
+
+    function getSeleteValue() {
+      return {
+        selectedKeys: state.selectedKeys,
+        selectedRows: state.selectedRows,
+      };
+    }
+
     return () => (
       <Card class="w-1/2" title="优时通在售商品">
         <div>
-          <div class="mb-[10px]">
+          <div class="mb-[10px] flex gap-[10px]">
             <Input
               placeholder="请输入关键词"
+              value={query.value.keyWord ?? ""}
               onChange={(e) => (query.value.keyWord = e.target.value ?? "")}
               onPressEnter={() => {
                 query.value.pageIndex = 0;
                 getList();
               }}
             />
+            <Tooltip title="查询">
+              <Button icon={<SearchOutlined />} onClick={() => getList()} />
+            </Tooltip>
+            <Tooltip title="刷新">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                  query.value.pageIndex = 0;
+                  query.value.keyWord = "";
+                  getList();
+                }}
+              />
+            </Tooltip>
           </div>
           <Table
             rowKey="SKUNo"
@@ -63,8 +95,8 @@ export default defineComponent({
             columns={getShopColumns()}
             scroll={{ y: "calc(100vh - 336px)" }}
             rowSelection={{
-              selectedRowKeys: props.selectKey,
-              onChange: props.onYSTSelectChange,
+              selectedRowKeys: state.selectedKeys,
+              onChange: handleChange,
             }}
             pagination={{
               current: query.value.pageIndex + 1,

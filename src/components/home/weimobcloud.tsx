@@ -1,23 +1,24 @@
-import { Card, Input, Table } from "ant-design-vue";
 import { defineComponent, onMounted, reactive, ref, toRaw } from "vue";
+import { Button, Card, Input, Table, Tooltip } from "ant-design-vue";
+import { SearchOutlined, ReloadOutlined } from "@ant-design/icons-vue";
 import { getChildColumns, getGoodsColumns } from "./columns";
 import * as goodsApi from "@/http/goods";
-import { WMGoodsDetail, WMList } from "@/http/types";
+import { WMGoodsDetail, WMList, WMPageList } from "@/http/types";
+import getGoodsList from "@/mock/getGoodsList.json";
 
 type Key = string | number;
 
 export default defineComponent({
   name: "WeiMobCloud",
-  setup(props: {
-    selectKey: Key[];
-    onWMSelectChange: (key: Key[], rows: WMGoodsDetail[]) => void;
-  }) {
+  setup(props, { expose }) {
     const state = reactive<{
-      selectedRowKeys: Key[];
+      selectedKeys: Key[];
+      selectedRows: WMGoodsDetail[];
       loading: boolean;
       dataSource: WMList;
     }>({
-      selectedRowKeys: [],
+      selectedKeys: [],
+      selectedRows: [],
       loading: false,
       dataSource: { pageList: [], totalCount: 0, pageSize: 20, pageNum: 1 },
     });
@@ -31,6 +32,12 @@ export default defineComponent({
     onMounted(() => {
       getList();
     });
+
+    expose({
+      handleChange,
+      getSeleteValue,
+    });
+
     function getList(params = query.value) {
       state.loading = true;
       goodsApi
@@ -54,18 +61,53 @@ export default defineComponent({
       record.detailInfo = data;
     };
 
+    function handleChange(goodsId: string, keys: Key[]) {
+      if (!goodsId && !keys) {
+        state.selectedKeys = [];
+        state.selectedRows = [];
+        return;
+      }
+      const row = JSON.parse(JSON.stringify(state.dataSource.pageList)).find(
+        (l: WMPageList) => l.goodsId === Number(goodsId)
+      );
+
+      state.selectedKeys = keys ?? [];
+      state.selectedRows = [{ ...row.detailInfo, selectedKey: keys[0] }] ?? [];
+    }
+
+    function getSeleteValue() {
+      return {
+        selectedKeys: state.selectedKeys,
+        selectedRows: state.selectedRows,
+      };
+    }
+
     return () => (
       <Card title="微盟云在售商品" class="w-1/2">
         <div>
-          <div class="mb-[10px]">
+          <div class="mb-[10px] flex gap-[10px]">
             <Input
               placeholder="请输入关键词"
+              value={query.value.search ?? ""}
               onChange={(e) => (query.value.search = e.target.value ?? "")}
               onPressEnter={() => {
                 query.value.pageNum = 1;
                 getList();
               }}
             />
+            <Tooltip title="查询">
+              <Button icon={<SearchOutlined />} onClick={() => getList()} />
+            </Tooltip>
+            <Tooltip title="刷新">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                  query.value.pageNum = 1;
+                  query.value.search = "";
+                  getList();
+                }}
+              />
+            </Tooltip>
           </div>
           <Table
             loading={state.loading}
@@ -97,8 +139,9 @@ export default defineComponent({
                     dataSource={record?.detailInfo?.skuList ?? []}
                     pagination={false}
                     rowSelection={{
-                      selectedRowKeys: props.selectKey,
-                      onChange: props.onWMSelectChange,
+                      selectedRowKeys: state.selectedKeys,
+                      onChange: (selectedRowKeys: Key[]) =>
+                        handleChange(record.goodsId, selectedRowKeys),
                     }}
                   />
                 );

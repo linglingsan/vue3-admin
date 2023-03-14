@@ -1,6 +1,7 @@
-import { Button, Image, Tooltip } from "ant-design-vue";
+import { Button, Image, Popconfirm, Tooltip } from "ant-design-vue";
 import { WMPageList, YouSTongSKUList } from "@/http/types";
 import { LinkRow } from "@/http/types";
+import { toRaw } from "vue";
 
 export function getShopColumns() {
   return [
@@ -37,21 +38,28 @@ export function getShopColumns() {
       dataIndex: "BrandName",
     },
     {
-      title: "单价",
+      title: "单价信息",
       width: 80,
       dataIndex: "CurrentPrices",
       customRender: (text: any) => {
+        const newText = toRaw(text.value)
+          .map(
+            (item: { QtyPerOrder: number; UnitPrice: number }) =>
+              `${item.UnitPrice}元/${item.QtyPerOrder}件`
+          )
+          .join("\n");
+
         return (
-          <div class="flex">
-            {text.map((item: { QtyPerOrder: number; UnitPrice: number }) => (
-              <div key={item.QtyPerOrder}>
-                {item.UnitPrice}元/{item.QtyPerOrder}件
-              </div>
-            ))}
-          </div>
+          <Tooltip
+            style={{ whiteSpace: "pre-inline" }}
+            title={text.value.length > 2 ? newText : ""}
+          >
+            <div>{newText}</div>
+          </Tooltip>
         );
       },
     },
+    { title: "体积占比", dataIndex: "UnitVolumeOfPackage" },
   ];
 }
 
@@ -153,12 +161,14 @@ export function linkResultColumns({
       customRender: ({ record }: { record: LinkRow }) => {
         return (
           <div>
-            <Button
-              type="link"
-              onClick={() => handleDelete(record.id.toString())}
+            <Popconfirm
+              title="您确定要删除吗"
+              okText="确定"
+              cancelText="取消"
+              onConfirm={() => handleDelete(record.id.toString())}
             >
-              删除
-            </Button>
+              <Button type="link">删除</Button>
+            </Popconfirm>
           </div>
         );
       },

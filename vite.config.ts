@@ -6,15 +6,28 @@ import {
   createStyleImportPlugin,
   AndDesignVueResolve,
 } from "vite-plugin-style-import";
-import { isProd, isDev } from "./env"
+import { isProd, isDev } from "./env";
 
-console.log('isProd, isDev, isServer', isProd, isDev)
+console.log("isProd, isDev, isServer", isProd, isDev);
 
 // https://vitejs.dev/config/
 export default ({ mode }) =>
   defineConfig({
     base: mode === "development" ? "/" : "./",
-    server: { port: 3000 },
+    server: {
+      port: 3000,
+
+//       proxy: {
+//         "/api": {
+//           target: "http://jfm6vd.natappfree.cc/",
+//           changeOrigin: true,
+//           rewrite: (path) => {
+// console.log(222, path.replace(/^\/api/, ""))
+//             return path.replace(/^\/api/, "")
+//           },
+//         },
+//       },
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "/src"),
