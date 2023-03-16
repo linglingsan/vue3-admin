@@ -15,6 +15,7 @@ export default ({ mode }) =>
   defineConfig({
     base: mode === "development" ? "/" : "./",
     server: {
+      host: "0.0.0.0",
       port: 3000,
 
 //       proxy: {

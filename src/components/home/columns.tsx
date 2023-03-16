@@ -39,22 +39,24 @@ export function getShopColumns() {
     },
     {
       title: "单价信息",
-      width: 80,
+      width: 120,
+
       dataIndex: "CurrentPrices",
       customRender: (text: any) => {
-        const newText = toRaw(text.value)
-          .map(
-            (item: { QtyPerOrder: number; UnitPrice: number }) =>
-              `${item.UnitPrice}元/${item.QtyPerOrder}件`
-          )
-          .join("\n");
-
+        const newText = toRaw(text.value).map(
+          (item: { QtyPerOrder: number; UnitPrice: number }) =>
+            `${item.UnitPrice}元/${item.QtyPerOrder}件`
+        );
+        const [first, second] = newText;
+        // truncate
         return (
           <Tooltip
-            style={{ whiteSpace: "pre-inline" }}
-            title={text.value.length > 2 ? newText : ""}
+            overlayStyle={{ whiteSpace: "pre-line" }}
+            title={text.value.length > 2 ? newText.join("\n") : ""}
           >
-            <div>{newText}</div>
+            <div style={{ whiteSpace: "pre-line" }}>
+              {[first, second, "..."].join("\n")}
+            </div>
           </Tooltip>
         );
       },
@@ -130,13 +132,6 @@ export function linkResultColumns({
       },
     },
     {
-      title: "是否订阅",
-      dataIndex: "subscribeStatus",
-      customRender: ({ text }: { text: string }) => {
-        return +text ? "是" : "否";
-      },
-    },
-    {
       title: "微盟云SKU",
       dataIndex: "wmGoodsId",
     },
@@ -154,6 +149,13 @@ export function linkResultColumns({
     {
       title: "仓库名称",
       dataIndex: "defaultStock",
+    },
+     {
+      title: "是否订阅",
+      dataIndex: "subscribeStatus",
+      customRender: ({ text }: { text: string }) => {
+        return +text ? "是" : "否";
+      },
     },
     {
       title: "操作",

@@ -120,7 +120,7 @@ export default defineComponent({
             <Table
               rowKey="ystSkuNo"
               size="small"
-              dataSource={state.dataSource.list}
+              dataSource={state?.dataSource?.list ?? []}
               columns={linkResultColumns({ handleDelete })}
               scroll={{ y: "calc(100vh - 336px)" }}
               rowSelection={{
