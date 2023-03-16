@@ -124,7 +124,7 @@ export default defineComponent({
               columns={linkResultColumns({ handleDelete })}
               scroll={{ y: "calc(100vh - 336px)" }}
               rowSelection={{
-                selectedRowKeys: state.selectedRowKeys,
+                selectedRowKeys: state.selectedRowKeys ?? [],
                 onChange: onSelectChange,
               }}
             />
