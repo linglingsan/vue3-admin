@@ -18,7 +18,7 @@ export default defineComponent({
       dataSource: {},
       loading: false,
     });
-    const query = ref({ page: 1, size: 20, keyword: "" });
+    const query = ref({ page: 1, size: 20, dataSource: "HJ", keyword: "" });
 
     onMounted(() => {
       getList();

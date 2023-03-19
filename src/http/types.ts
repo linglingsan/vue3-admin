@@ -76,4 +76,5 @@ export interface LinkParams {
   ystImageUrl: string;
   ystSkuName: string;
   ystSkuNo: string;
+  dataSource: "HJ"
 }

@@ -33,9 +33,6 @@ export default defineComponent({
     const link = ref<{ getList: () => void } | null>(null);
 
     function handleLink() {
-      // link.value?.getList();
-      // return
-
       if (!youSTong.value || !youSTong.value.getSeleteValue) return;
       if (!wmGoods.value || !wmGoods.value.getSeleteValue) return;
 
@@ -72,6 +69,7 @@ export default defineComponent({
         wmGoodsName: title,
         wmImageUrl: defaultImageUrl,
         wmSkuCode: skuId.toString(),
+        dataSource: "HJ",
       };
 
       goodsApi.save(parmas).then((res) => {

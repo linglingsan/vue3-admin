@@ -26,6 +26,7 @@ export default defineComponent({
     const query = ref({
       pageNum: 1,
       pageSize: 20,
+      dataSource: "HJ",
       search: "",
     });
 
@@ -56,7 +57,7 @@ export default defineComponent({
     ) => {
       if (!expanded) return;
       const { goodsId } = toRaw(record);
-      const res = await goodsApi.getGoodsDetailInfo(Number(goodsId));
+      const res = await goodsApi.getGoodsDetailInfo({goodsId: Number(goodsId),   dataSource: "HJ",});
       const { data } = JSON.parse(res as any);
       record.detailInfo = data;
     };

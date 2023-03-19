@@ -12,12 +12,10 @@ export function getGoodsList(params = { pageNum: 1 }) {
   );
 }
 
-export function getGoodsDetailInfo(goodsId: number) {
+export function getGoodsDetailInfo(params = { dataSource: "HJ", goodsId: 0 }) {
   return axios.post(
-    `/market/rest/weimeng/getGoodsDetailInfo?${qs.stringify({ goodsId })}`,
-    {
-      goodsId,
-    }
+    `/market/rest/weimeng/getGoodsDetailInfo?${qs.stringify(params)}`,
+    params
   );
 }
 
@@ -40,5 +38,5 @@ export function subscribeOrCancel(flag: boolean, list: string[]) {
 }
 
 export function deleteLinkId(id: string) {
-  return axios.get(`/market/rest/GoodsMapping/delete?${qs.stringify({id})}`) 
+  return axios.get(`/market/rest/GoodsMapping/delete?${qs.stringify({ id })}`);
 }
