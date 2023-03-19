@@ -1,8 +1,8 @@
 import axios from "./axios";
 import qs from "qs";
 
-export function getShopList(params = { pageIndex: 0 }) {
-  return axios.post("/market/rest/youstong/getShopList", qs.stringify(params));
+export function getShopList(params: Record<string, any>) {
+  return axios.post("/market/rest/tianma/getGoodsList", qs.stringify(params));
 }
 
 export function getGoodsList(params = { pageNum: 1 }) {

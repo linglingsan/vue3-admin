@@ -18,7 +18,7 @@ export default defineComponent({
       dataSource: {},
       loading: false,
     });
-    const query = ref({ page: 1, size: 20, dataSource: "HJ", keyword: "" });
+    const query = ref({ page: 1, size: 20, dataSource: "TM", keyword: "" });
 
     onMounted(() => {
       getList();
@@ -77,27 +77,13 @@ export default defineComponent({
 
     return () => (
       <>
-        <Card
-          title="SKU绑定列表"
-          extra={
-            <div>
-              <Button
-                type="primary"
-                class="mr-[20px]"
-                onClick={() => subscribeOrCancel(true)}
-              >
-                订阅
-              </Button>
-              <Button onClick={() => subscribeOrCancel(false)}>取消订阅</Button>
-            </div>
-          }
-        >
+        <Card title="SKU绑定列表">
           <div>
             <div class="mb-[10px] flex gap-[10px]">
               <Input
                 placeholder="请输入关键词"
                 value={query.value.keyword ?? ""}
-                onChange={(e) => (query.value.keyword = e.target.value ?? "")}
+                onChange={(e) => (query.value.keyword = e.target.value?.trim() ?? "")}
                 onPressEnter={() => {
                   query.value.page = 1;
                   getList();

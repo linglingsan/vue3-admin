@@ -6,62 +6,33 @@ import { toRaw } from "vue";
 export function getShopColumns() {
   return [
     {
-      title: "商品",
+      title: "货架号",
       width: 160,
       ellipsis: true,
-      dataIndex: "SKUName",
+      dataIndex: "articleno",
+    },
+
+    {
+      title: "天马商品",
+      width: 120,
+      dataIndex: "brandname",
       customRender: ({
         text,
         record,
       }: {
         text: string;
-        record: YouSTongSKUList;
+        record: Record<string, string>;
       }) => {
         return (
-          <div class="flex flex-col items-center">
-            <Image width={80} src={record.ImageUrl} />
+          <div class="flex flex-col">
+            <Image width={80} src={record.pic_url} />
             <Tooltip title={text}>
-              <div class="w-full truncate">{text}</div>
+              <div class="w-full truncate ">{text}</div>
             </Tooltip>
           </div>
         );
       },
     },
-    {
-      title: "商品编号",
-      dataIndex: "SKUNo",
-      width: 80,
-    },
-    {
-      title: "品牌名称",
-      width: 120,
-      dataIndex: "BrandName",
-    },
-    {
-      title: "单价信息",
-      width: 120,
-
-      dataIndex: "CurrentPrices",
-      customRender: (text: any) => {
-        const newText = toRaw(text.value).map(
-          (item: { QtyPerOrder: number; UnitPrice: number }) =>
-            `${item.UnitPrice}元/${item.QtyPerOrder}件`
-        );
-        const [first, second] = newText;
-        // truncate
-        return (
-          <Tooltip
-            overlayStyle={{ whiteSpace: "pre-line" }}
-            title={text.value.length > 2 ? newText.join("\n") : ""}
-          >
-            <div style={{ whiteSpace: "pre-line" }}>
-              {[first, second, "..."].join("\n")}
-            </div>
-          </Tooltip>
-        );
-      },
-    },
-    { title: "体积占比", dataIndex: "UnitVolumeOfPackage" },
   ];
 }
 
@@ -117,15 +88,15 @@ export function linkResultColumns({
 }) {
   return [
     {
-      title: "优时通SKU",
+      title: "货架号",
       dataIndex: "ystSkuNo",
     },
     {
-      title: "优时通商品名称",
+      title: "天马商品名称",
       dataIndex: "ystSkuName",
     },
     {
-      title: "优时通商品图片",
+      title: "天马商品图片",
       dataIndex: "ystImageUrl",
       customRender: ({ text }: { text: string }) => {
         return <Image width={80} src={text} />;
@@ -149,13 +120,6 @@ export function linkResultColumns({
     {
       title: "仓库名称",
       dataIndex: "defaultStock",
-    },
-     {
-      title: "是否订阅",
-      dataIndex: "subscribeStatus",
-      customRender: ({ text }: { text: string }) => {
-        return +text ? "是" : "否";
-      },
     },
     {
       title: "操作",

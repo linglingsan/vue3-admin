@@ -26,7 +26,7 @@ export default defineComponent({
     const query = ref({
       pageNum: 1,
       pageSize: 20,
-      dataSource: "HJ",
+      dataSource: "TM",
       search: "",
     });
 
@@ -57,7 +57,7 @@ export default defineComponent({
     ) => {
       if (!expanded) return;
       const { goodsId } = toRaw(record);
-      const res = await goodsApi.getGoodsDetailInfo({goodsId: Number(goodsId),   dataSource: "HJ",});
+      const res = await goodsApi.getGoodsDetailInfo({goodsId: Number(goodsId),   dataSource: "TM",});
       const { data } = JSON.parse(res as any);
       record.detailInfo = data;
     };
@@ -90,7 +90,7 @@ export default defineComponent({
             <Input
               placeholder="请输入关键词"
               value={query.value.search ?? ""}
-              onChange={(e) => (query.value.search = e.target.value ?? "")}
+              onChange={(e) => (query.value.search = e.target.value?.trim() ?? "")}
               onPressEnter={() => {
                 query.value.pageNum = 1;
                 getList();

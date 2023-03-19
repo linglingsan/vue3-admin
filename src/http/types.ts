@@ -15,6 +15,17 @@ export interface YouSTongSKUList {
   DefaultStock: string;
 }
 
+export interface TMList {
+  total: string
+  rows: TMRows[]
+}
+
+export interface TMRows {
+  articleno: string
+  brandname: string
+  pic_url: string
+}
+
 export interface WMList {
   pageSize: number;
   pageList: WMPageList[];
@@ -55,7 +66,7 @@ export enum SubscribeStatus {
 }
 
 export interface LinkRow {
-  defaultStock: string;
+  // defaultStock: string;
   id: bigint;
   subscribeStatus: SubscribeStatus;
   wmGoodsId: string;
@@ -76,5 +87,5 @@ export interface LinkParams {
   ystImageUrl: string;
   ystSkuName: string;
   ystSkuNo: string;
-  dataSource: "HJ"
+  dataSource: "TM"
 }

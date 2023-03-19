@@ -1,8 +1,8 @@
-import { defineComponent, reactive, ref, getCurrentInstance } from "vue";
+import { defineComponent, ref } from "vue";
 import { Button, Layout, message } from "ant-design-vue";
-import { YouSTong, WeiMobCloud, LinkResult } from "@/components/home";
+import { TianMa, WeiMobCloud, LinkResult } from "@/components/home";
 import * as goodsApi from "@/http/goods";
-import { LinkParams, WMGoodsDetail, YouSTongSKUList } from "@/http/types";
+import { LinkParams, WMGoodsDetail, TMRows } from "@/http/types";
 
 const { Header, Content } = Layout;
 
@@ -10,7 +10,7 @@ type Key = string | number;
 
 type YousTongValue = {
   selectedKeys: Key[];
-  selectedRows: YouSTongSKUList[];
+  selectedRows: TMRows[];
 };
 
 type wmGoodsValue = {
@@ -40,7 +40,7 @@ export default defineComponent({
       const wmGoodsValue = wmGoods?.value?.getSeleteValue();
 
       if (youSTongValue.selectedKeys.length !== 1) {
-        message.warn("请选择一个优时通商品");
+        message.warn("请选择一个天马商品");
         return;
       }
 
@@ -49,7 +49,7 @@ export default defineComponent({
         return;
       }
 
-      const { SKUNo, SKUName, ImageUrl, DefaultStock } = JSON.parse(
+      const { articleno, brandname, pic_url } = JSON.parse(
         JSON.stringify(youSTongValue.selectedRows[0])
       );
 
@@ -61,15 +61,15 @@ export default defineComponent({
       } = JSON.parse(JSON.stringify(wmGoodsValue.selectedRows[0]));
 
       const parmas: LinkParams = {
-        ystSkuNo: SKUNo.toString(),
-        ystSkuName: SKUName,
-        ystImageUrl: ImageUrl,
-        defaultStock: DefaultStock,
+        ystSkuNo: articleno,
+        ystSkuName: brandname,
+        ystImageUrl: pic_url,
+        defaultStock: "",
         wmGoodsId: goodsId.toString(),
         wmGoodsName: title,
         wmImageUrl: defaultImageUrl,
         wmSkuCode: skuId.toString(),
-        dataSource: "HJ",
+        dataSource: "TM",
       };
 
       goodsApi.save(parmas).then((res) => {
@@ -92,7 +92,7 @@ export default defineComponent({
         </Header>
         <Content class="flex flex-col mx-[50px] mt-[24px]">
           <div class="flex justify-between mb-[20px]">
-            <YouSTong ref={youSTong} />
+            <TianMa ref={youSTong} />
             <WeiMobCloud ref={wmGoods} />
           </div>
           <div class="flex flex-col">
